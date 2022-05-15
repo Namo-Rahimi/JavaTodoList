@@ -18,7 +18,11 @@ public class Pages {
         while (true) {
             Functions.ClearScreen();
             Functions.Figlet("TodoList");
+            Functions.ShowTasks();
             String remove = Functions.Input("Enter a number to remove: ");
+            int option = Integer.parseInt(remove);
+            Functions.RemoveFromList(option);
+            break;
         }
     }
 }

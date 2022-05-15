@@ -3,6 +3,11 @@ package org.namo;
 import com.github.lalyos.jfiglet.FigletFont;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class Functions {
@@ -71,17 +76,56 @@ public class Functions {
     // Prints content of the text file to the screen
     public static void ShowTasks()  {
         try {
-            BufferedReader br = new BufferedReader(new FileReader("todolist.txt"));
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
+            BufferedReader reader = new BufferedReader(new FileReader("todolist.txt"));
+            int lines = 1;
+            for (String line = reader.readLine(); line !=null; line=reader.readLine()) {
+                System.out.println(lines++ + ". " + line);
             }
+            reader.close();
         } catch (IOException e) {
             System.out.println("An error has occurred I/O error");
         }
     }
+    // Shows how many lines in the text file
+    public static int GetLines() throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader("todolist.txt"));
+        int lines = 1;
+        int textLine = 0;
+        for (String line = reader.readLine(); line !=null; line=reader.readLine()) {
+            textLine = lines++;
+        }
+        return textLine;
+    }
     // Removes an item from the list
-    public static void RemoveFromList() {
+    public static void RemoveFromList(int lineNumber) {
+        try {
+            int textNumbers = GetLines();
+            if (textNumbers == lineNumber) {
+                String line = Files.readAllLines(Paths.get("todolist.txt")).get(lineNumber - 1);
+                File inputFile = new File("todolist.txt");
+                File tempFile = new File("tempFile.txt");
 
+                BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+                BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+
+                String lineToRemove = line;
+                String currentLine;
+
+                while ((currentLine = reader.readLine()) != null) {
+                    // trim newline when comparing with lineToRemove
+                    String trimmedLine = currentLine.trim();
+                    if (trimmedLine.equals(lineToRemove)) continue;
+                    writer.write(currentLine + System.getProperty("line.separator"));
+                }
+                writer.close();
+                reader.close();
+                boolean successful = tempFile.renameTo(inputFile);
+                System.out.println("Removed");
+            } else {
+                System.out.println("This is not an option please try again");
+            }
+        } catch (IOException e) {
+            System.out.println("An error has occurred I/O error");
+        }
     }
 }
